@@ -1,5 +1,5 @@
 {
-  "name": "cli-defuddle",
+  "name": "defuddle-cli",
   "version": "0.1.0",
   "description": "A command-line interface for extracting main content from web pages and articles",
   "main": "dist/cli.js",
