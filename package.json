@@ -20,7 +20,7 @@
     "prepare": "husky",
     "prepublishOnly": "pnpm run build",
     "release": "semantic-release",
-    "commit-msg-lint": "commitlint --edit",
+    "commit-msg-lint": "commitlint",
     "commit": "cz"
   },
   "lint-staged": {
