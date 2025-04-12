@@ -1,4 +1,4 @@
-# Defuddle CLI Design Document
+# Defuddler Design Document
 
 ## Overview
 
@@ -9,20 +9,20 @@ A command-line interface wrapping the defuddle library (https://github.com/kepan
 ## Installation
 
 ```bash
-npm install -g @shyndman/defuddle-cli
+npm install -g @shyndman/defuddler
 ```
 
 ## Command Structure
 
 ### Primary Command
 ```bash
-defuddle [options] <input>
+defud [options] <input>
 ```
 
 ### Input Methods
-- URL: `defuddle https://example.com/article`
-- File: `defuddle ./path/to/file.html`
-- Standard Input: `cat file.html | defuddle`
+- URL: `defud https://example.com/article`
+- File: `defud ./path/to/file.html`
+- Standard Input: `cat file.html | defud`
 
 ## Options
 
@@ -53,7 +53,7 @@ defuddle [options] <input>
 
 ### Completions
 ```bash
-defuddle completions <shell>
+defud completions <shell>
 ```
 Generate shell completions for:
 - `zsh`
@@ -62,13 +62,13 @@ Generate shell completions for:
 
 ### Validate
 ```bash
-defuddle validate <input>
+defud validate <input>
 ```
 Validate HTML input without processing
 
 ### Info
 ```bash
-defuddle info <input> [options]
+defud info <input> [options]
 ```
 Display metadata about the content without full processing
 
@@ -95,22 +95,22 @@ Default styling will include:
 
 ```bash
 # Process URL and output to terminal
-defuddle https://example.com/article
+defud https://example.com/article
 
 # Process URL with verbose logging
-defuddle -v https://example.com/article
+defud -v https://example.com/article
 
 # Process local file and open in browser
-defuddle -b ./article.html
+defud -b ./article.html
 
 # Process URL and save as markdown
-defuddle -f markdown -o output.md https://example.com/article
+defud -f markdown -o output.md https://example.com/article
 
 # Process stdin and output JSON
-cat article.html | defuddle -f json
+cat article.html | defud -f json
 
 # Generate zsh completions
-defuddle completions zsh > ~/.zsh/completions/_defuddle
+defud completions zsh > ~/.zsh/completions/_defud
 ```
 
 ## Error Handling

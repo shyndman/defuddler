@@ -12,13 +12,13 @@ import { setupInfoCommand } from './commands/info.js';
 import { setupUserAgentsCommand } from './commands/user-agents.js';
 
 const packageJson = {
-  name: '@shyndman/defuddle-cli',
+  name: '@shyndman/defuddler',
   version: '0.1.0',
   description: 'A command-line interface for extracting main content from web pages and articles',
 };
 
 // Setup program metadata
-program.name('defuddle').description(packageJson.description).version(packageJson.version);
+program.name('defud').description(packageJson.description).version(packageJson.version);
 
 // Setup global options
 program.option('-v, --verbose', 'Enable verbose logging', {

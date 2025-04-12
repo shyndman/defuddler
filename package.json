@@ -1,10 +1,10 @@
 {
-  "name": "defuddle-cli",
+  "name": "defuddler",
   "version": "0.0.0",
   "description": "A command-line interface for extracting main content from web pages and articles",
   "main": "dist/cli.js",
   "bin": {
-    "defuddle": "dist/cli.js"
+    "defud": "dist/cli.js"
   },
   "type": "module",
   "scripts": {
@@ -31,18 +31,18 @@
     "content-extraction",
     "readability",
     "web-scraping",
-    "defuddle"
+    "defuddler"
   ],
   "author": "",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/shyndman/defuddle-cli.git"
+    "url": "git+https://github.com/shyndman/defuddler.git"
   },
   "bugs": {
-    "url": "https://github.com/shyndman/defuddle-cli/issues"
+    "url": "https://github.com/shyndman/defuddler/issues"
   },
-  "homepage": "https://github.com/shyndman/defuddle-cli#readme",
+  "homepage": "https://github.com/shyndman/defuddler#readme",
   "dependencies": {
     "@caporal/core": "^2.0.7",
     "chalk": "^5.4.1",

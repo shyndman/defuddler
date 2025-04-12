@@ -53,9 +53,9 @@ export function setupUserAgentsCommand(program: Program): void {
 
         // Display usage examples
         console.log(`\n${chalk.yellow('Usage Examples:')}`);
-        console.log(`  defuddle [command] --user-agent firefox-linux`);
-        console.log(`  defuddle [command] --user-agent crawler-googlebot`);
-        console.log(`  defuddle [command] --user-agent "Mozilla/5.0 (custom user agent)"`);
+        console.log(`  defud [command] --user-agent firefox-linux`);
+        console.log(`  defud [command] --user-agent crawler-googlebot`);
+        console.log(`  defud [command] --user-agent "Mozilla/5.0 (custom user agent)"`);
       } catch (error: unknown) {
         spinner.fail('Failed to fetch user agent options');
         const errorMessage =

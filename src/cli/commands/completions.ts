@@ -28,47 +28,47 @@ export function setupCompletionsCommand(program: Program): void {
 
         // Output the completion script to stdout
         // This allows users to redirect it to a file
-        // Example: defuddle completions zsh > ~/.zsh/completions/_defuddle
+        // Example: defud completions zsh > ~/.zsh/completions/_defud
 
         // For demonstration purposes, we're outputting a simple script
         // In a real implementation, we would use tabtab's API to generate the script
-        console.log(`# Shell completion script for defuddle (${shell})`);
+        console.log(`# Shell completion script for defud (${shell})`);
         console.log(`# Generated on ${new Date().toISOString()}`);
-        console.log('# This script enables tab completion for the defuddle CLI');
+        console.log('# This script enables tab completion for the defuddler CLI');
         console.log('');
 
         // Add shell-specific completion code
         switch (shell) {
           case 'bash':
             console.log('# Bash completion script');
-            console.log('_defuddle_completions() {');
+            console.log('_defud_completions() {');
             console.log(
               '  COMPREPLY=($(compgen -W "help completions validate info" -- "${COMP_WORDS[COMP_CWORD]}"))'
             );
             console.log('}');
-            console.log('complete -F _defuddle_completions defuddle');
+            console.log('complete -F _defud_completions defud');
             break;
           case 'zsh':
             console.log('# Zsh completion script');
-            console.log('#compdef defuddle');
-            console.log('_defuddle() {');
+            console.log('#compdef defud');
+            console.log('_defud() {');
             console.log('  local -a commands');
             console.log(
               '  commands=("help:Show help" "completions:Generate shell completions" "validate:Validate HTML" "info:Display metadata")'
             );
-            console.log('  _describe -t commands "defuddle commands" commands');
+            console.log('  _describe -t commands "defud commands" commands');
             console.log('}');
-            console.log('_defuddle "$@"');
+            console.log('_defud "$@"');
             break;
           case 'fish':
             console.log('# Fish completion script');
-            console.log('function __fish_defuddle_commands');
+            console.log('function __fish_defud_commands');
             console.log('  echo help\tShow help');
             console.log('  echo completions\tGenerate shell completions');
             console.log('  echo validate\tValidate HTML');
             console.log('  echo info\tDisplay metadata');
             console.log('end');
-            console.log('complete -f -c defuddle -a "(__fish_defuddle_commands)"');
+            console.log('complete -f -c defud -a "(__fish_defud_commands)"');
             break;
         }
 
@@ -76,7 +76,7 @@ export function setupCompletionsCommand(program: Program): void {
         console.error(chalk.green(`\n${shell} completion script generated.`));
         console.error(chalk.yellow(`To use, add it to your ${shell} configuration:`));
 
-        const programName = 'defuddle';
+        const programName = 'defud';
         switch (shell) {
           case 'bash':
             console.error(

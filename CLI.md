@@ -1,6 +1,6 @@
-# Defuddle CLI Reference
+# Defuddler CLI Reference
 
-This document outlines the commands and options available in the Defuddle CLI.
+This document outlines the commands and options available in the Defuddler CLI.
 
 ## Main Command
 
@@ -9,7 +9,7 @@ Processes HTML content from a URL, file, or standard input.
 **Usage:**
 
 ```bash
-defuddle [input] [options]
+defud [input] [options]
 ```
 
 **Arguments:**
@@ -36,7 +36,7 @@ Validates HTML input without processing it.
 **Usage:**
 
 ```bash
-defuddle validate <input> [options]
+defud validate <input> [options]
 ```
 
 **Arguments:**
@@ -55,7 +55,7 @@ Displays metadata about the HTML content without full processing.
 **Usage:**
 
 ```bash
-defuddle info <input> [options]
+defud info <input> [options]
 ```
 
 **Arguments:**
@@ -78,7 +78,7 @@ Generates shell completion scripts.
 **Usage:**
 
 ```bash
-defuddle completions <shell>
+defud completions <shell>
 ```
 
 **Arguments:**

@@ -1,4 +1,4 @@
-# Defuddle CLI
+# Defuddler
 
 A command-line interface for extracting the main content from web pages and articles, powered by the [defuddle](https://github.com/kepano/defuddle) library.
 
@@ -8,53 +8,53 @@ A command-line interface for extracting the main content from web pages and arti
 
 ```bash
 # Global installation
-npm install -g @shyndman/defuddle-cli
+npm install -g @shyndman/defuddler
 
 # Or with pnpm
-pnpm add -g @shyndman/defuddle-cli
+pnpm add -g @shyndman/defuddler
 
 # Or run without installing using npx
-npx @shyndman/defuddle-cli
+npx @shyndman/defuddler
 ```
 
 ## Usage
 
 ```bash
-defuddle [options] <input>
+defud [options] <input>
 ```
 
 ### Input Methods
 
-- URL: `defuddle https://example.com/article`
-- File: `defuddle ./path/to/file.html`
-- Standard Input: `cat file.html | defuddle`
+- URL: `defud https://example.com/article`
+- File: `defud ./path/to/file.html`
+- Standard Input: `cat file.html | defud`
 
 ### Examples
 
 ```bash
 # Process URL and output to terminal
-defuddle https://example.com/article
+defud https://example.com/article
 
 # Process URL with verbose logging
-defuddle -v https://example.com/article
+defud -v https://example.com/article
 
 # Process local file and open in browser
-defuddle -b ./article.html
+defud -b ./article.html
 
 # Process URL and save as markdown
-defuddle -f markdown -o output.md https://example.com/article
+defud -f markdown -o output.md https://example.com/article
 
 # Process stdin and output JSON
-cat article.html | defuddle -f json
+cat article.html | defud -f json
 
 # Process URL, remove images, and save as HTML
-defuddle --no-images -f html -o no-images.html https://example.com/article
+defud --no-images -f html -o no-images.html https://example.com/article
 
 # Get estimated read time and list images from a URL
-defuddle info --read-time --list-images https://example.com/article
+defud info --read-time --list-images https://example.com/article
 
 # Generate zsh completions
-defuddle completions zsh > ~/.zsh/completions/_defuddle
+defud completions zsh > ~/.zsh/completions/_defud
 ```
 
 ## Options
@@ -86,7 +86,7 @@ defuddle completions zsh > ~/.zsh/completions/_defuddle
 
 ### Completions
 ```bash
-defuddle completions <shell>
+defud completions <shell>
 ```
 Generate shell completions for:
 - `zsh`
@@ -95,13 +95,13 @@ Generate shell completions for:
 
 ### Validate
 ```bash
-defuddle validate <input>
+defud validate <input>
 ```
 Validate HTML input without processing
 
 ### Info
 ```bash
-defuddle info <input> [options]
+defud info <input> [options]
 ```
 Display metadata about the content without full processing
 

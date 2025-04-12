@@ -157,7 +157,7 @@ export function setupMainCommand(program: Program): void {
   ): Promise<void> {
     // Create a temporary file
     const tempDir = os.tmpdir();
-    const tempFilePath = path.join(tempDir, `defuddle-${Date.now()}.html`);
+    const tempFilePath = path.join(tempDir, `defuddler-${Date.now()}.html`);
 
     logger?.debug(`Creating temporary file: ${tempFilePath}`);
 
