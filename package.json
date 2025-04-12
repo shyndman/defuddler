@@ -12,10 +12,19 @@
     "dev": "tsc --watch",
     "lint": "eslint --config eslint.config.ts src --ext .ts",
     "format": "prettier --write \"src/**/*.ts\" \"*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"*.ts\"",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "prepare": "husky",
     "prepublishOnly": "pnpm run build"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --config eslint.config.ts",
+      "prettier --check"
+    ]
   },
   "keywords": [
     "cli",
