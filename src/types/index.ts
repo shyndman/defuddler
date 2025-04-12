@@ -1,3 +1,5 @@
+import { DefuddleResponse } from "defuddle";
+
 /**
  * Supported output formats
  */
@@ -35,17 +37,8 @@ export interface MainCommandOptions {
 /**
  * Metadata about processed content
  */
-export interface ContentMetadata {
-  title?: string;
-  byline?: string;
-  siteName?: string;
-  excerpt?: string;
-  language?: string;
-  publishedTime?: string;
-  modifiedTime?: string;
-  wordCount?: number;
+export interface ContentMetadata extends Partial<DefuddleResponse> {
   readingTime?: number;
-  url?: string;
 }
 
 /**

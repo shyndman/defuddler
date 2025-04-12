@@ -1,6 +1,15 @@
-import { Program } from '../utils/caporal.js';
+import { ParsedArgumentsObject } from '@caporal/core';
 import chalk from 'chalk';
+import { Defuddle } from 'defuddle/node';
+import { existsSync } from 'fs';
+import fs from 'fs/promises';
+import got from 'got';
+import { JSDOM } from 'jsdom';
 import ora from 'ora';
+import { ParsedOptions } from 'types';
+import { Logger } from 'winston';
+import { ContentMetadata, InputSourceType } from '../types/index.js';
+import { Program } from '../utils/caporal.js';
 
 export function setupInfoCommand(program: Program): void {
   program
@@ -22,30 +31,191 @@ export function setupInfoCommand(program: Program): void {
     .option('--read-time', 'Estimate reading time of the main content', {
       validator: program.BOOLEAN
     })
-    .action(async ({ args, options, logger }) => {
+    .action(async ({ args, options, logger }:
+      { args: ParsedArgumentsObject, options: ParsedOptions, logger: Logger; }) => {
       const { input } = args;
       logger.debug('Getting info for input: %s with options: %O', input, options);
 
       const spinner = ora('Extracting metadata...').start();
 
       try {
-        // This is a placeholder for the actual implementation
-        // In a real implementation, we would:
-        // 1. Determine the input type (URL, file, stdin)
-        // 2. Fetch or read the HTML content
-        // 3. Extract metadata without full content processing
-        // 4. Format and display the metadata
+        // Determine the input type
+        const inputType = determineInputType(String(input));
+        logger.debug(`Determined input type: ${inputType}`);
+
+
+        // Get HTML content based on input type
+        const html = await getHtmlContent(
+          String(input), inputType, Number(options.timeout), String(options['userAgent']), logger);
+        logger.debug('HTML content retrieved successfully');
+
+        // Extract metadata using defuddle
+        const metadata = await extractMetadata(html, logger);
+        logger.debug('Metadata extracted successfully');
+
+        // Format the output
+        const formattedOutput = formatOutput(metadata, options, logger);
+        logger.debug('Output formatted successfully');
+
+        // Output the result
+        await outputResult(formattedOutput, options.output ? String(options.output) : undefined, logger);
 
         spinner.succeed('Metadata extracted successfully');
-        logger.info(chalk.yellow('This is a placeholder. The actual implementation will extract and display metadata.'));
-
       } catch (error: unknown) {
         spinner.fail('Failed to extract metadata');
         const errorMessage = error && typeof error === 'object' && 'message' in error
-          ? (error as { message?: string }).message
+          ? (error as { message?: string; }).message
           : 'An unknown error occurred';
         logger.error(chalk.red(`Error: ${errorMessage || 'An unknown error occurred'}`));
         process.exit(1);
       }
     });
+
+  /**
+   * Determines the type of input (URL, file, or string)
+   */
+  function determineInputType(input: string): InputSourceType {
+    // Check if input is a URL
+    try {
+      new URL(input);
+      return InputSourceType.URL;
+    } catch {
+      // Not a URL
+    }
+
+    // Check if input is a file path
+    if (existsSync(input)) {
+      return InputSourceType.FILE;
+    }
+
+    // Default to treating as HTML string
+    return InputSourceType.STRING;
+  }
+
+  /**
+   * Gets HTML content based on input type
+   */
+  async function getHtmlContent(
+    input: string,
+    inputType: InputSourceType,
+    timeout: number,
+    userAgent?: string,
+    logger?: Logger
+  ): Promise<string> {
+    logger?.debug(`Getting HTML content from ${inputType}`);
+
+    switch (inputType) {
+      case InputSourceType.URL: {
+        logger?.debug(`Fetching URL: ${input} with timeout: ${timeout}ms`);
+        const response = await got(input, {
+          timeout: { request: timeout },
+          headers: userAgent ? { 'user-agent': userAgent } : {}
+        });
+        return response.body;
+      }
+
+      case InputSourceType.FILE: {
+        logger?.debug(`Reading file: ${input}`);
+        return await fs.readFile(input, 'utf-8');
+      }
+
+      case InputSourceType.STRING: {
+        logger?.debug('Using input as HTML string');
+        return input;
+      }
+
+      default:
+        throw new Error(`Unsupported input type: ${inputType}`);
+    }
+  }
+
+  /**
+   * Extracts metadata from HTML content using defuddle
+   */
+  async function extractMetadata(html: string, logger?: Logger): Promise<ContentMetadata> {
+    logger?.debug('Creating JSDOM from HTML');
+    const dom = new JSDOM(html);
+
+    logger?.debug('Initializing defuddle and extracting');
+    const result = await Defuddle(dom);
+
+    // Extract metadata
+    const metadata: ContentMetadata = {
+      ...result,
+      readingTime: result.content ? calculateReadingTime(result.content) : undefined,
+    };
+
+    logger?.debug('Metadata extracted', metadata);
+    return metadata;
+  }
+
+  /**
+   * Counts words in a string
+   */
+  function countWords(text: string): number {
+    return text.trim().split(/\s+/).length;
+  }
+
+  /**
+   * Calculates reading time in minutes (average reading speed: 200 words per minute)
+   */
+  function calculateReadingTime(text: string): number {
+    const words = countWords(text);
+    return Math.ceil(words / 200);
+  }
+
+  /**
+   * Formats the output based on options
+   */
+  function formatOutput(metadata: ContentMetadata, options: ParsedOptions, logger?: Logger): string {
+    logger?.debug('Formatting output', { format: options.format });
+
+    // Filter metadata based on options
+    const filteredMetadata = { ...metadata };
+
+    // Only include reading time if requested
+    if (!options.readTime) {
+      delete filteredMetadata.readingTime;
+    }
+
+    // Format based on requested format
+    if (options.format === 'json') {
+      return JSON.stringify(filteredMetadata, null, 2);
+    } else {
+      // Text format
+      const lines: string[] = [];
+
+      if (filteredMetadata.title) {
+        lines.push(`Title: ${filteredMetadata.title}`);
+      }
+
+      if (filteredMetadata.site) {
+        lines.push(`Site: ${filteredMetadata.site}`);
+      }
+
+      if (filteredMetadata.wordCount) {
+        lines.push(`Word count: ${filteredMetadata.wordCount}`);
+      }
+
+      if (filteredMetadata.readingTime) {
+        lines.push(`Reading time: ${filteredMetadata.readingTime} minute${filteredMetadata.readingTime !== 1 ? 's' : ''}`);
+      }
+
+      return lines.join('\n');
+    }
+  }
+
+  /**
+   * Outputs the result to file or stdout
+   */
+  async function outputResult(output: string, outputPath?: string, logger?: Logger): Promise<void> {
+    if (outputPath) {
+      logger?.debug(`Writing output to file: ${outputPath}`);
+      await fs.writeFile(outputPath, output, 'utf-8');
+      logger?.info(chalk.green(`Output written to ${outputPath}`));
+    } else {
+      logger?.debug('Writing output to stdout');
+      console.log(output);
+    }
+  }
 }
