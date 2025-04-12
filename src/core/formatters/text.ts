@@ -5,17 +5,17 @@ import { ContentMetadata } from '../../types/index.js';
  * Formats the output as plain text
  */
 export function formatAsText(
-  content: string, 
-  metadata: ContentMetadata, 
+  content: string,
+  metadata: ContentMetadata,
   includeReadingTime: boolean
 ): string {
   let text = '';
-  
+
   // Add title
   if (metadata.title) {
     text += `${metadata.title}\n${'='.repeat(metadata.title.length)}\n\n`;
   }
-  
+
   // Add metadata section
   if (metadata.site) {
     text += `Source: ${metadata.site}\n`;
@@ -32,13 +32,13 @@ export function formatAsText(
   if (includeReadingTime && metadata.readingTime) {
     text += `Reading time: ${metadata.readingTime} minute${metadata.readingTime !== 1 ? 's' : ''}\n`;
   }
-  
+
   // Add separator
   text += '\n' + '-'.repeat(80) + '\n\n';
-  
+
   // Add content (strip HTML tags for plain text)
   text += stripHtmlTags(content);
-  
+
   return text;
 }
 
