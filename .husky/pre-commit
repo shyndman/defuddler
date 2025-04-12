@@ -1,4 +1,4 @@
-echo "🚀 Running pre-push checks..."
+echo "🚀 Running pre-commit checks..."
 
 # Run linting on all files
 echo "🔍 Running linting on all files..."
@@ -12,4 +12,4 @@ pnpm run typecheck
 echo "🧪 Running tests..."
 pnpm run test
 
-echo "✅ Pre-push checks passed!"
+echo "✅ Pre-commit checks passed!"

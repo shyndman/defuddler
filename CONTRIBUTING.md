@@ -33,9 +33,41 @@ Thank you for considering contributing to Defuddler! This document outlines the 
 
 ## Commit Messages
 
-- Use clear, descriptive commit messages
-- Start with a verb in the present tense (e.g., "Add feature" not "Added feature")
-- Reference issue numbers when applicable (e.g., "Fix #123: Resolve memory leak")
+This project follows the [Conventional Commits](https://www.conventionalcommits.org/) specification for commit messages. Please see our [COMMIT_CONVENTION.md](./COMMIT_CONVENTION.md) for detailed guidelines.
+
+Following this convention is important because:
+
+1. It automatically determines the next version number
+2. It generates the CHANGELOG.md file
+3. It helps organize and categorize changes
+
+We enforce this convention using commitlint, which will check your commit messages automatically. If your commit message doesn't follow the convention, it will be rejected.
+
+Examples of good commit messages:
+
+```
+feat(cli): add support for custom user agents
+fix(parser): resolve issue with malformed HTML
+docs(readme): update installation instructions
+```
+
+### Interactive Commit Helper
+
+We've added a tool to help you create properly formatted commit messages. Instead of using `git commit`, you can run:
+
+```bash
+pnpm run commit
+```
+
+This will launch an interactive prompt that will guide you through creating a conventional commit message.
+
+### Manual Validation
+
+To manually check if your commit message is valid before committing, you can run:
+
+```bash
+pnpm run commit-msg-lint
+```
 
 ## Pull Requests
 

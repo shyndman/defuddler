@@ -20,7 +20,8 @@ export function formatOutput(
   metadata: ContentMetadata,
   format: OutputFormat,
   includeReadingTime: boolean,
-  logger?: Logger
+  logger?: Logger,
+  useFrontmatter?: boolean
 ): string {
   logger?.debug(`Formatting output as ${format}`);
 
@@ -29,7 +30,7 @@ export function formatOutput(
       return formatAsHtml(content, metadata, includeReadingTime);
 
     case 'markdown':
-      return formatAsMarkdown(content, metadata, includeReadingTime);
+      return formatAsMarkdown(content, metadata, includeReadingTime, useFrontmatter);
 
     case 'json':
       return formatAsJson(content, metadata, includeReadingTime);

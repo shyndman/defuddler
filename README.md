@@ -136,6 +136,28 @@ Display metadata about the content without full processing
 - `--list-images`: List all image URLs found in the main content.
 - `--read-time`: Estimate reading time of the main content.
 
+## 🚀 Development
+
+### Release Process
+
+This project uses [semantic-release](https://github.com/semantic-release/semantic-release) for automated versioning and package publishing. The release process is triggered automatically when changes are pushed to the `main` branch.
+
+For contributors:
+
+1. Follow the [commit message convention](./COMMIT_CONVENTION.md) when making changes
+2. Create pull requests against the `main` branch
+3. Once merged, semantic-release will automatically:
+   - Determine the next version based on commit messages
+   - Update the CHANGELOG.md
+   - Create a new GitHub release
+   - Publish to npm
+
+To run a release locally (for testing only):
+
+```bash
+pnpm run release
+```
+
 ## 📜 License
 
 MIT

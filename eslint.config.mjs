@@ -1,14 +1,16 @@
 // @ts-check
 
-const js = require('@eslint/js');
-const eslintPluginPrettier = require('eslint-plugin-prettier');
-const eslintConfigPrettier = require('eslint-config-prettier');
+import js from '@eslint/js';
+import eslintPluginPrettier from 'eslint-plugin-prettier';
+import eslintConfigPrettier from 'eslint-config-prettier';
+import typescriptEslint from '@typescript-eslint/eslint-plugin';
+import typescriptParser from '@typescript-eslint/parser';
 
-module.exports = [
+export default [
   js.configs.recommended,
   {
     languageOptions: {
-      parser: require('@typescript-eslint/parser'),
+      parser: typescriptParser,
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
@@ -23,7 +25,7 @@ module.exports = [
     },
     plugins: {
       prettier: eslintPluginPrettier,
-      '@typescript-eslint': require('@typescript-eslint/eslint-plugin'),
+      '@typescript-eslint': typescriptEslint,
     },
     rules: {
       'prettier/prettier': 'error',
