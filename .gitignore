@@ -8,6 +8,9 @@ dist/
 # Coverage directory
 coverage/
 
+# Test cache
+.vitest-cache/
+
 # Logs
 logs
 *.log

@@ -1,5 +1,7 @@
 # Defuddler
 
+[![CI](https://github.com/shyndman/defuddler/actions/workflows/ci.yml/badge.svg)](https://github.com/shyndman/defuddler/actions/workflows/ci.yml)
+
 A command-line interface for extracting the main content from web pages and articles, powered by the [defuddle](https://github.com/kepano/defuddle) library.
 
 *"In the beginning, there was noise, and the Great Parser brought forth clarity."*

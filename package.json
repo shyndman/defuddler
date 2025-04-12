@@ -14,9 +14,9 @@
     "format": "prettier --write \"src/**/*.ts\" \"*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\" \"*.ts\"",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
+    "test": "vitest run --cache",
+    "test:watch": "vitest --cache",
+    "test:coverage": "vitest run --coverage --cache",
     "prepare": "husky",
     "prepublishOnly": "pnpm run build"
   },
