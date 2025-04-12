@@ -5,43 +5,63 @@ import { getAvailableBrowserOsCombinations } from '../utils/user-agents.js';
 
 export function setupUserAgentsCommand(program: Program): void {
   program
-    .command('user-agents', 'List available browser-OS combinations for the --user-agent option')
+    .command(
+      'user-agents',
+      'List available browser-OS combinations and crawler types for the --user-agent option'
+    )
     .action(async ({ logger }) => {
-      logger.debug('Listing available browser-OS combinations');
+      logger.debug('Listing available user agent options');
 
-      const spinner = ora('Fetching available browser-OS combinations...').start();
+      const spinner = ora('Fetching available user agent options...').start();
 
       try {
-        // Get available browser-OS combinations
+        // Get available browser-OS combinations and crawler types
         const combinations = await getAvailableBrowserOsCombinations();
-        
-        spinner.succeed('Available browser-OS combinations:');
-        
-        // Group by browser
+
+        spinner.succeed('Available user agent options:');
+
+        // Separate browser-OS combinations and crawler types
         const browserGroups: Record<string, string[]> = {};
-        combinations.forEach(combo => {
-          const [browser, os] = combo.split('-');
-          if (!browserGroups[browser]) {
-            browserGroups[browser] = [];
+        const crawlerTypes: string[] = [];
+
+        combinations.forEach((combo) => {
+          if (combo.startsWith('crawler-')) {
+            crawlerTypes.push(combo.substring(8)); // Remove 'crawler-' prefix
+          } else {
+            const [browser, os] = combo.split('-');
+            if (!browserGroups[browser]) {
+              browserGroups[browser] = [];
+            }
+            browserGroups[browser].push(os);
           }
-          browserGroups[browser].push(os);
         });
-        
-        // Display grouped combinations
+
+        // Display browser-OS combinations
+        console.log(`\n${chalk.bold('Browser-OS Combinations:')}`);
         Object.entries(browserGroups).forEach(([browser, osList]) => {
-          console.log(`\n${chalk.bold(browser)}:`);
-          osList.forEach(os => {
-            console.log(`  ${chalk.cyan(`${browser}-${os}`)}`);
+          console.log(`\n  ${chalk.bold(browser)}:`);
+          osList.forEach((os) => {
+            console.log(`    ${chalk.cyan(`${browser}-${os}`)}`);
           });
         });
-        
-        console.log(`\n${chalk.yellow('Usage:')} defuddle [command] --user-agent firefox-linux`);
-        
+
+        // Display crawler types
+        console.log(`\n${chalk.bold('Crawler Types:\n')}`);
+        crawlerTypes.sort().forEach((crawlerName) => {
+          console.log(`  ${chalk.cyan(`crawler-${crawlerName}`)}`);
+        });
+
+        // Display usage examples
+        console.log(`\n${chalk.yellow('Usage Examples:')}`);
+        console.log(`  defuddle [command] --user-agent firefox-linux`);
+        console.log(`  defuddle [command] --user-agent crawler-googlebot`);
+        console.log(`  defuddle [command] --user-agent "Mozilla/5.0 (custom user agent)"`);
       } catch (error: unknown) {
-        spinner.fail('Failed to fetch browser-OS combinations');
-        const errorMessage = error && typeof error === 'object' && 'message' in error
-          ? (error as { message?: string }).message
-          : 'An unknown error occurred';
+        spinner.fail('Failed to fetch user agent options');
+        const errorMessage =
+          error && typeof error === 'object' && 'message' in error
+            ? (error as { message?: string }).message
+            : 'An unknown error occurred';
         logger.error(chalk.red(`Error: ${errorMessage || 'An unknown error occurred'}`));
         process.exit(1);
       }

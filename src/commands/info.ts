@@ -22,7 +22,7 @@ export function setupInfoCommand(program: Program): void {
     })
     .option(
       '--user-agent <string>',
-      'Custom user-agent string or browser-OS combination (e.g., firefox-linux, chrome-macos)'
+      'Custom user-agent string, browser-OS combination (e.g., firefox-linux), or crawler type (e.g., crawler-googlebot)'
     )
     .option('-o, --output <path>', 'Write output to a file instead of stdout')
     .option('-f, --format <format>', 'Output format (text, json)', {

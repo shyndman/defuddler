@@ -34,7 +34,7 @@ export function setupMainCommand(program: Program): void {
     })
     .option(
       '--user-agent <string>',
-      'Custom user-agent string or browser-OS combination (e.g., firefox-linux, chrome-macos)'
+      'Custom user-agent string, browser-OS combination (e.g., firefox-linux), or crawler type (e.g., crawler-googlebot)'
     )
     .action(async ({ args, options, logger }) => {
       const { input } = args;
