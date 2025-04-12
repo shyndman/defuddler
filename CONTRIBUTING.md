@@ -41,7 +41,7 @@ Following this convention is important because:
 2. It generates the CHANGELOG.md file
 3. It helps organize and categorize changes
 
-We enforce this convention using commitlint, which will check your commit messages automatically. If your commit message doesn't follow the convention, it will be rejected.
+We enforce this convention using commitlint, which will check your commit messages automatically. If your commit message doesn't follow the convention, it will be rejected. Our CI pipeline also verifies that all commits in a pull request follow the conventional commit format.
 
 Examples of good commit messages:
 
@@ -74,6 +74,7 @@ pnpm run commit-msg-lint
 - Provide a clear description of the changes
 - Link to any related issues
 - Ensure all CI checks pass
+- Make sure all commits in your PR follow the [conventional commit format](./COMMIT_CONVENTION.md)
 - Be responsive to feedback and be willing to make requested changes
 
 ## Development Setup
