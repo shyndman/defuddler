@@ -10,6 +10,7 @@ import { ParsedOptions } from 'types';
 import { Logger } from 'winston';
 import { ContentMetadata, InputSourceType } from '../types/index.js';
 import { Program } from '../utils/caporal.js';
+import { getUserAgent, getAvailableBrowserOsCombinations } from '../utils/user-agents.js';
 
 export function setupInfoCommand(program: Program): void {
   program
@@ -19,7 +20,10 @@ export function setupInfoCommand(program: Program): void {
       default: 10000,
       validator: program.NUMBER,
     })
-    .option('--user-agent <string>', 'Custom user-agent string for URL fetching')
+    .option(
+      '--user-agent <string>',
+      'Custom user-agent string or browser-OS combination (e.g., firefox-linux, chrome-macos)'
+    )
     .option('-o, --output <path>', 'Write output to a file instead of stdout')
     .option('-f, --format <format>', 'Output format (text, json)', {
       default: 'text',
@@ -117,7 +121,7 @@ export function setupInfoCommand(program: Program): void {
     input: string,
     inputType: InputSourceType,
     timeout: number,
-    userAgent?: string,
+    userAgentSpec?: string,
     logger?: Logger
   ): Promise<string> {
     logger?.debug(`Getting HTML content from ${inputType}`);
@@ -125,9 +129,23 @@ export function setupInfoCommand(program: Program): void {
     switch (inputType) {
       case InputSourceType.URL: {
         logger?.debug(`Fetching URL: ${input} with timeout: ${timeout}ms`);
+
+        // Process user agent if specified
+        let headers = {};
+        if (userAgentSpec) {
+          try {
+            logger?.debug(`Processing user agent specification: ${userAgentSpec}`);
+            const resolvedUserAgent = await getUserAgent(userAgentSpec);
+            logger?.debug(`Resolved user agent: ${resolvedUserAgent}`);
+            headers = { 'user-agent': resolvedUserAgent };
+          } catch (error) {
+            logger?.warn(`Failed to resolve user agent, using default: ${error}`);
+          }
+        }
+
         const response = await got(input, {
           timeout: { request: timeout },
-          headers: userAgent ? { 'user-agent': userAgent } : {},
+          headers,
         });
         return response.body;
       }

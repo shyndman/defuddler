@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import ora from 'ora';
 import { Program } from '../utils/caporal.js';
+import { getUserAgent } from '../utils/user-agents.js';
 // We'll use OutputFormat later when implementing the actual functionality
 
 export function setupMainCommand(program: Program): void {
@@ -31,7 +32,10 @@ export function setupMainCommand(program: Program): void {
       validator: program.NUMBER,
       default: 10000,
     })
-    .option('--user-agent <string>', 'Custom user-agent string for URL fetching')
+    .option(
+      '--user-agent <string>',
+      'Custom user-agent string or browser-OS combination (e.g., firefox-linux, chrome-macos)'
+    )
     .action(async ({ args, options, logger }) => {
       const { input } = args;
       logger.debug('Running main command with input: %s and options: %O', input, options);

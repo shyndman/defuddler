@@ -9,6 +9,7 @@ import { setupMainCommand } from './commands/main.js';
 import { setupCompletionsCommand } from './commands/completions.js';
 import { setupValidateCommand } from './commands/validate.js';
 import { setupInfoCommand } from './commands/info.js';
+import { setupUserAgentsCommand } from './commands/user-agents.js';
 
 const packageJson = {
   name: '@shyndman/defuddle-cli',
@@ -36,6 +37,7 @@ setupMainCommand(program);
 setupCompletionsCommand(program);
 setupValidateCommand(program);
 setupInfoCommand(program);
+setupUserAgentsCommand(program);
 
 try {
   // Run the program (Caporal handles parsing arguments)

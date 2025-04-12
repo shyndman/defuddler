@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import ora from 'ora';
 import { Program } from '../utils/caporal.js';
+import { getUserAgent } from '../utils/user-agents.js';
 
 export function setupValidateCommand(program: Program): void {
   program
@@ -10,7 +11,10 @@ export function setupValidateCommand(program: Program): void {
       default: 10000,
       validator: program.NUMBER,
     })
-    .option('--user-agent <string>', 'Custom user-agent string for URL fetching')
+    .option(
+      '--user-agent <string>',
+      'Custom user-agent string or browser-OS combination (e.g., firefox-linux, chrome-macos)'
+    )
     .action(async ({ args, options, logger }) => {
       const { input } = args;
       logger.debug('Validating input: %s with options: %O', input, options);
