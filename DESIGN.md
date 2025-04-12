@@ -146,11 +146,15 @@ Dev dependencies:
 
 ```
 src/
-  ├── cli.ts           # Main CLI entry point
-  ├── commands/        # Command implementations
-  ├── processors/      # Content processing logic
-  ├── formatters/      # Output formatters
-  ├── browser/         # Browser view related code
+  ├── defud.ts         # Main CLI entry point
+  ├── cli/             # CLI-specific code
+  │   ├── caporal.ts   # Caporal.js configuration
+  │   └── commands/    # Command implementations
+  ├── core/            # Core processing logic
+  │   ├── extractors/  # Content extraction utilities
+  │   └── formatters/  # Output formatters
+  ├── http/            # HTTP-related utilities
+  ├── io/              # Input/output utilities
   ├── utils/           # Utility functions
   └── types/           # TypeScript type definitions
 ```

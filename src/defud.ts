@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
-import { program } from './caporal.js';
+import { program } from './cli/caporal.js';
 import chalk from 'chalk';
-import logger, { setLogLevel } from '../io/logger.js';
+import logger, { setLogLevel } from './io/logger.js';
 
 // Import commands
-import { setupMainCommand } from './commands/main.js';
-import { setupCompletionsCommand } from './commands/completions.js';
-import { setupInfoCommand } from './commands/info.js';
-import { setupUserAgentsCommand } from './commands/user-agents.js';
+import { setupMainCommand } from './cli/commands/main.js';
+import { setupCompletionsCommand } from './cli/commands/completions.js';
+import { setupInfoCommand } from './cli/commands/info.js';
+import { setupUserAgentsCommand } from './cli/commands/user-agents.js';
 
 const packageJson = {
   name: '@shyndman/defuddler',
