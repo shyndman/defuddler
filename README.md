@@ -1,4 +1,4 @@
-# Defuddler
+# ✨📃 Defuddler
 
 [![CI](https://github.com/shyndman/defuddler/actions/workflows/ci.yml/badge.svg)](https://github.com/shyndman/defuddler/actions/workflows/ci.yml)
 
