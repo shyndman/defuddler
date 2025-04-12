@@ -66,7 +66,9 @@ export function setupInfoCommand(program: Program): void {
           logger.debug('HTML content retrieved successfully');
 
           // Extract metadata using defuddle
-          const metadata = await extractMetadata(html, logger);
+          // Pass the original URL if the input was a URL
+          const sourceUrl = inputType === InputSourceType.URL ? String(input) : undefined;
+          const metadata = await extractMetadata(html, sourceUrl, logger);
           logger.debug('Metadata extracted successfully');
 
           // Format the output
@@ -167,29 +169,77 @@ export function setupInfoCommand(program: Program): void {
 
   /**
    * Extracts metadata from HTML content using defuddle
+   * @param html The HTML content to extract metadata from
+   * @param sourceUrl The original URL of the content (if available)
+   * @param logger Optional logger
    */
-  async function extractMetadata(html: string, logger?: Logger): Promise<ContentMetadata> {
+  async function extractMetadata(
+    html: string,
+    sourceUrl?: string,
+    logger?: Logger
+  ): Promise<ContentMetadata> {
     logger?.debug('Creating JSDOM from HTML');
-    const dom = new JSDOM(html);
 
-    logger?.debug('Initializing defuddle and extracting');
-    const result = await Defuddle(dom);
+    // Create JSDOM with the source URL if available
+    const jsdomOptions = sourceUrl ? { url: sourceUrl } : {};
+    const dom = new JSDOM(html, jsdomOptions);
 
-    // Extract metadata
-    const metadata: ContentMetadata = {
-      ...result,
-      readingTime: result.content ? calculateReadingTime(result.content) : undefined,
-    };
+    // If we have a source URL but it's not set as the base URI, set it manually
+    if (sourceUrl && dom.window.document.baseURI === 'about:blank') {
+      // Create a base element to set the document base URI
+      const baseEl = dom.window.document.createElement('base');
+      baseEl.href = sourceUrl;
 
-    // Extract image URLs from the content if available
-    if (result.content) {
-      logger?.debug('Extracting image URLs from content');
-      metadata.contentImages = extractImageUrls(result.content, dom.window.document.baseURI);
-      logger?.debug(`Found ${metadata.contentImages.length} images in content`);
+      // Insert at the beginning of head
+      const head = dom.window.document.head || dom.window.document.getElementsByTagName('head')[0];
+      if (head) {
+        head.insertBefore(baseEl, head.firstChild);
+        logger?.debug(`Added base element with href=${sourceUrl}`);
+      }
     }
 
-    logger?.debug('Metadata extracted', metadata);
-    return metadata;
+    logger?.debug(`Document base URI: ${dom.window.document.baseURI}`);
+    logger?.debug('Initializing defuddle and extracting');
+
+    try {
+      const result = await Defuddle(dom);
+
+      // Extract metadata
+      const metadata: ContentMetadata = {
+        ...result,
+        readingTime: result.content ? calculateReadingTime(result.content) : undefined,
+      };
+
+      // Extract image URLs from the content if available
+      if (result.content) {
+        logger?.debug('Extracting image URLs from content');
+        const baseUrl =
+          dom.window.document.baseURI !== 'about:blank'
+            ? dom.window.document.baseURI
+            : sourceUrl || 'about:blank';
+        metadata.contentImages = extractImageUrls(result.content, baseUrl);
+        logger?.debug(`Found ${metadata.contentImages.length} images in content`);
+      }
+
+      logger?.debug('Metadata extracted', metadata);
+      return metadata;
+    } catch (error) {
+      // Log the error but don't throw it
+      logger?.error('Error extracting metadata with defuddle:', error);
+
+      // Return a partial metadata object with what we can extract
+      const metadata: ContentMetadata = {
+        title: dom.window.document.title || undefined,
+        content: dom.window.document.body?.textContent || undefined,
+      };
+
+      if (metadata.content) {
+        metadata.wordCount = countWords(metadata.content);
+        metadata.readingTime = calculateReadingTime(metadata.content);
+      }
+
+      return metadata;
+    }
   }
 
   /**
