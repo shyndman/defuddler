@@ -1,6 +1,6 @@
 import chalk from 'chalk';
-import { ShellType } from '../types/index.js';
-import { Program } from '../utils/caporal.js';
+import { ShellType } from '../../types/index.js';
+import { Program } from '../caporal.js';
 
 /**
  * Sets up the completions command for the CLI

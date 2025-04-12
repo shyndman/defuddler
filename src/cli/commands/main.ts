@@ -6,15 +6,15 @@ import open from 'open';
 import ora from 'ora';
 import os from 'os';
 import path from 'path';
-import { OutputFormat, InputSourceType } from '../types/index.js';
+import { OutputFormat, InputSourceType } from '../../types/index.js';
 import {
   determineInputType,
   getHtmlContent,
   extractContent,
   outputResult,
   extractCodeBlocks,
-} from '../utils/content.js';
-import { Program } from '../utils/caporal.js';
+} from '../../core/content.js';
+import { Program } from '../caporal.js';
 
 export function setupMainCommand(program: Program): void {
   program

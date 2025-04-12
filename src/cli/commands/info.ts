@@ -3,14 +3,14 @@ import chalk from 'chalk';
 import ora from 'ora';
 import { ParsedOptions } from 'types';
 import { Logger } from 'winston';
-import { ContentMetadata, InputSourceType } from '../types/index.js';
-import { Program } from '../utils/caporal.js';
+import { ContentMetadata, InputSourceType } from '../../types/index.js';
+import { Program } from '../caporal.js';
 import {
   determineInputType,
   getHtmlContent,
   extractContent,
   outputResult,
-} from '../utils/content.js';
+} from '../../core/content.js';
 
 export function setupInfoCommand(program: Program): void {
   program

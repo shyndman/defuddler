@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import ora from 'ora';
-import { Program } from '../utils/caporal.js';
-import { getAvailableBrowserOsCombinations } from '../utils/user-agents.js';
+import { Program } from '../caporal.js';
+import { getAvailableBrowserOsCombinations } from '../../http/user-agents.js';
 
 export function setupUserAgentsCommand(program: Program): void {
   program

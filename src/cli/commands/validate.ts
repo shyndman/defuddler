@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import ora from 'ora';
-import { Program } from '../utils/caporal.js';
-import { getUserAgent } from '../utils/user-agents.js';
+import { Program } from '../caporal.js';
+import { getUserAgent } from '../../http/user-agents.js';
 
 export function setupValidateCommand(program: Program): void {
   program

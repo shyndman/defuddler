@@ -5,7 +5,7 @@ import got from 'got';
 import { JSDOM } from 'jsdom';
 import { Logger } from 'winston';
 import { ContentMetadata, InputSourceType } from '../types/index.js';
-import { getUserAgent } from './user-agents.js';
+import { getUserAgent } from '../http/user-agents.js';
 
 /**
  * Determines the type of input (URL, file, or string)
