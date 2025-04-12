@@ -1,16 +1,16 @@
 import { ParsedArgumentsObject } from '@caporal/core';
 import chalk from 'chalk';
-import { Defuddle } from 'defuddle/node';
-import { existsSync } from 'fs';
-import fs from 'fs/promises';
-import got from 'got';
-import { JSDOM } from 'jsdom';
 import ora from 'ora';
 import { ParsedOptions } from 'types';
 import { Logger } from 'winston';
 import { ContentMetadata, InputSourceType } from '../types/index.js';
 import { Program } from '../utils/caporal.js';
-import { getUserAgent, getAvailableBrowserOsCombinations } from '../utils/user-agents.js';
+import {
+  determineInputType,
+  getHtmlContent,
+  extractContent,
+  outputResult,
+} from '../utils/content.js';
 
 export function setupInfoCommand(program: Program): void {
   program
@@ -57,10 +57,10 @@ export function setupInfoCommand(program: Program): void {
 
           // Get HTML content based on input type
           const html = await getHtmlContent(
-            String(input),
+            input ? String(input) : undefined,
             inputType,
             Number(options.timeout),
-            String(options['userAgent']),
+            options.userAgent ? String(options.userAgent) : undefined,
             logger
           );
           logger.debug('HTML content retrieved successfully');
@@ -68,7 +68,7 @@ export function setupInfoCommand(program: Program): void {
           // Extract metadata using defuddle
           // Pass the original URL if the input was a URL
           const sourceUrl = inputType === InputSourceType.URL ? String(input) : undefined;
-          const metadata = await extractMetadata(html, sourceUrl, logger);
+          const metadata = await extractContent(html, sourceUrl, logger);
           logger.debug('Metadata extracted successfully');
 
           // Format the output
@@ -94,247 +94,6 @@ export function setupInfoCommand(program: Program): void {
         }
       }
     );
-
-  /**
-   * Determines the type of input (URL, file, or string)
-   */
-  function determineInputType(input: string): InputSourceType {
-    // Check if input is a URL
-    try {
-      new URL(input);
-      return InputSourceType.URL;
-    } catch {
-      // Not a URL
-    }
-
-    // Check if input is a file path
-    if (existsSync(input)) {
-      return InputSourceType.FILE;
-    }
-
-    // Default to treating as HTML string
-    return InputSourceType.STRING;
-  }
-
-  /**
-   * Gets HTML content based on input type
-   */
-  async function getHtmlContent(
-    input: string,
-    inputType: InputSourceType,
-    timeout: number,
-    userAgentSpec?: string,
-    logger?: Logger
-  ): Promise<string> {
-    logger?.debug(`Getting HTML content from ${inputType}`);
-
-    switch (inputType) {
-      case InputSourceType.URL: {
-        logger?.debug(`Fetching URL: ${input} with timeout: ${timeout}ms`);
-
-        // Process user agent if specified
-        let headers = {};
-        if (userAgentSpec) {
-          try {
-            logger?.debug(`Processing user agent specification: ${userAgentSpec}`);
-            const resolvedUserAgent = await getUserAgent(userAgentSpec);
-            logger?.debug(`Resolved user agent: ${resolvedUserAgent}`);
-            headers = { 'user-agent': resolvedUserAgent };
-          } catch (error) {
-            logger?.warn(`Failed to resolve user agent, using default: ${error}`);
-          }
-        }
-
-        const response = await got(input, {
-          timeout: { request: timeout },
-          headers,
-        });
-        return response.body;
-      }
-
-      case InputSourceType.FILE: {
-        logger?.debug(`Reading file: ${input}`);
-        return await fs.readFile(input, 'utf-8');
-      }
-
-      case InputSourceType.STRING: {
-        logger?.debug('Using input as HTML string');
-        return input;
-      }
-
-      default:
-        throw new Error(`Unsupported input type: ${inputType}`);
-    }
-  }
-
-  /**
-   * Extracts metadata from HTML content using defuddle
-   * @param html The HTML content to extract metadata from
-   * @param sourceUrl The original URL of the content (if available)
-   * @param logger Optional logger
-   */
-  async function extractMetadata(
-    html: string,
-    sourceUrl?: string,
-    logger?: Logger
-  ): Promise<ContentMetadata> {
-    logger?.debug('Creating JSDOM from HTML');
-
-    // Create JSDOM with the source URL if available
-    const jsdomOptions = sourceUrl ? { url: sourceUrl } : {};
-    const dom = new JSDOM(html, jsdomOptions);
-
-    // If we have a source URL but it's not set as the base URI, set it manually
-    if (sourceUrl && dom.window.document.baseURI === 'about:blank') {
-      // Create a base element to set the document base URI
-      const baseEl = dom.window.document.createElement('base');
-      baseEl.href = sourceUrl;
-
-      // Insert at the beginning of head
-      const head = dom.window.document.head || dom.window.document.getElementsByTagName('head')[0];
-      if (head) {
-        head.insertBefore(baseEl, head.firstChild);
-        logger?.debug(`Added base element with href=${sourceUrl}`);
-      }
-    }
-
-    logger?.debug(`Document base URI: ${dom.window.document.baseURI}`);
-    logger?.debug('Initializing defuddle and extracting');
-
-    try {
-      const result = await Defuddle(dom);
-
-      // Extract metadata
-      const metadata: ContentMetadata = {
-        ...result,
-        readingTime: result.content ? calculateReadingTime(result.content) : undefined,
-      };
-
-      // Extract image URLs from the content if available
-      if (result.content) {
-        logger?.debug('Extracting image URLs from content');
-        const baseUrl =
-          dom.window.document.baseURI !== 'about:blank'
-            ? dom.window.document.baseURI
-            : sourceUrl || 'about:blank';
-        metadata.contentImages = extractImageUrls(result.content, baseUrl);
-        logger?.debug(`Found ${metadata.contentImages.length} images in content`);
-      }
-
-      logger?.debug('Metadata extracted', metadata);
-      return metadata;
-    } catch (error) {
-      // Log the error but don't throw it
-      logger?.error('Error extracting metadata with defuddle:', error);
-
-      // Return a partial metadata object with what we can extract
-      const metadata: ContentMetadata = {
-        title: dom.window.document.title || undefined,
-        content: dom.window.document.body?.textContent || undefined,
-      };
-
-      if (metadata.content) {
-        metadata.wordCount = countWords(metadata.content);
-        metadata.readingTime = calculateReadingTime(metadata.content);
-      }
-
-      return metadata;
-    }
-  }
-
-  /**
-   * Extracts image URLs from HTML content
-   */
-  function extractImageUrls(html: string, baseUrl: string): string[] {
-    // Create a temporary DOM to parse the HTML content
-    const tempDom = new JSDOM(html, { url: baseUrl });
-    const document = tempDom.window.document;
-
-    const imageUrls = new Set<string>();
-
-    // Extract URLs from img elements
-    const imgElements = document.querySelectorAll('img');
-    imgElements.forEach((img) => {
-      const src = img.getAttribute('src');
-      if (src) {
-        try {
-          // Resolve relative URLs to absolute URLs
-          const absoluteUrl = new URL(src, baseUrl).href;
-          imageUrls.add(absoluteUrl);
-        } catch (e) {
-          // Skip invalid URLs
-        }
-      }
-
-      // Also check srcset attribute
-      const srcset = img.getAttribute('srcset');
-      if (srcset) {
-        // Parse srcset format: "url1 1x, url2 2x" or "url1 100w, url2 200w"
-        const srcsetUrls = srcset.split(',').map((part) => part.trim().split(/\s+/)[0]);
-        srcsetUrls.forEach((url) => {
-          if (url) {
-            try {
-              const absoluteUrl = new URL(url, baseUrl).href;
-              imageUrls.add(absoluteUrl);
-            } catch (e) {
-              // Skip invalid URLs
-            }
-          }
-        });
-      }
-    });
-
-    // Extract URLs from picture elements and their source elements
-    const sourceElements = document.querySelectorAll('source');
-    sourceElements.forEach((source) => {
-      const srcset = source.getAttribute('srcset');
-      if (srcset) {
-        const srcsetUrls = srcset.split(',').map((part) => part.trim().split(/\s+/)[0]);
-        srcsetUrls.forEach((url) => {
-          if (url) {
-            try {
-              const absoluteUrl = new URL(url, baseUrl).href;
-              imageUrls.add(absoluteUrl);
-            } catch (e) {
-              // Skip invalid URLs
-            }
-          }
-        });
-      }
-    });
-
-    // Extract SVG elements with external references
-    const svgElements = document.querySelectorAll('svg image');
-    svgElements.forEach((svgImage) => {
-      const href = svgImage.getAttribute('href') || svgImage.getAttribute('xlink:href');
-      if (href && !href.startsWith('data:')) {
-        try {
-          const absoluteUrl = new URL(href, baseUrl).href;
-          imageUrls.add(absoluteUrl);
-        } catch (e) {
-          // Skip invalid URLs
-        }
-      }
-    });
-
-    // Return unique image URLs as an array
-    return Array.from(imageUrls);
-  }
-
-  /**
-   * Counts words in a string
-   */
-  function countWords(text: string): number {
-    return text.trim().split(/\s+/).length;
-  }
-
-  /**
-   * Calculates reading time in minutes (average reading speed: 200 words per minute)
-   */
-  function calculateReadingTime(text: string): number {
-    const words = countWords(text);
-    return Math.ceil(words / 200);
-  }
 
   /**
    * Formats the output based on options
@@ -418,20 +177,6 @@ export function setupInfoCommand(program: Program): void {
       }
 
       return lines.join('\n');
-    }
-  }
-
-  /**
-   * Outputs the result to file or stdout
-   */
-  async function outputResult(output: string, outputPath?: string, logger?: Logger): Promise<void> {
-    if (outputPath) {
-      logger?.debug(`Writing output to file: ${outputPath}`);
-      await fs.writeFile(outputPath, output, 'utf-8');
-      logger?.info(chalk.green(`Output written to ${outputPath}`));
-    } else {
-      logger?.debug('Writing output to stdout');
-      console.log(output);
     }
   }
 }
