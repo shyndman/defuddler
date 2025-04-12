@@ -5,12 +5,10 @@ import { ParsedOptions } from 'types';
 import { Logger } from 'winston';
 import { ContentMetadata, InputSourceType } from '../../types/index.js';
 import { Program } from '../caporal.js';
-import {
-  determineInputType,
-  getHtmlContent,
-  extractContent,
-  outputResult,
-} from '../../core/content.js';
+import { extractContent } from '../../core/content.js';
+import { formatOutput } from '../../core/formatters/index.js';
+import { determineInputType, getHtmlContent } from '../../io/input.js';
+import { outputResult } from '../../io/output.js';
 
 export function setupInfoCommand(program: Program): void {
   program
