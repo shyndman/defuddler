@@ -10,7 +10,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "lint": "eslint --config eslint.config.ts src --ext .ts",
+    "lint": "eslint --config eslint.config.cjs src --ext .ts",
     "format": "prettier --write \"src/**/*.ts\" \"*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\" \"*.ts\"",
     "typecheck": "tsc --noEmit",
@@ -22,7 +22,7 @@
   },
   "lint-staged": {
     "*.ts": [
-      "eslint --config eslint.config.ts",
+      "eslint --config eslint.config.cjs",
       "prettier --check"
     ],
     "*.{json,md}": [
