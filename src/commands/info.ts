@@ -1,4 +1,4 @@
-import { Program } from '@caporal/core';
+import { Program } from '../utils/caporal.js';
 import chalk from 'chalk';
 import ora from 'ora';
 

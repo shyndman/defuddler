@@ -1,8 +1,6 @@
-import pkg from '@caporal/core';
-
-type Program = typeof pkg.program;
 import chalk from 'chalk';
 import ora from 'ora';
+import { Program } from '../utils/caporal.js';
 
 export function setupValidateCommand(program: Program): void {
   program

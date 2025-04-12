@@ -1,6 +1,6 @@
-import { Program } from '@caporal/core';
 import chalk from 'chalk';
 import ora from 'ora';
+import { Program } from '../utils/caporal.js';
 // We'll use OutputFormat later when implementing the actual functionality
 
 export function setupMainCommand(program: Program): void {

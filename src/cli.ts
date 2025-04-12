@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { program } from '@caporal/core';
+import { program } from './utils/caporal.js';
 import chalk from 'chalk';
 import logger, { setLogLevel } from './utils/logger.js';
 
