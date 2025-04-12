@@ -33,7 +33,7 @@ defud [options] <input>
 
 ### Input Options
 - `--timeout <ms>`: Maximum time to wait for URL fetching (default: 10000)
-- `--user-agent <string>`: Custom user-agent string for URL fetching
+- `--user-agent <string>`: Custom user-agent string, browser-OS combination (e.g., `firefox-linux`), or crawler type (e.g., `crawler-googlebot`)
 
 ### Output Options
 - `--output, -o <path>`: Write output to a file instead of stdout
@@ -51,6 +51,12 @@ defud [options] <input>
 
 ## Subcommands
 
+### User Agents
+```bash
+defud user-agents
+```
+List available browser-OS combinations and crawler types for the `--user-agent` option
+
 ### Completions
 ```bash
 defud completions <shell>
@@ -60,11 +66,6 @@ Generate shell completions for:
 - `bash`
 - `fish`
 
-### Validate
-```bash
-defud validate <input>
-```
-Validate HTML input without processing
 
 ### Info
 ```bash

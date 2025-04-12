@@ -43,7 +43,7 @@ export function setupCompletionsCommand(program: Program): void {
             console.log('# Bash completion script');
             console.log('_defud_completions() {');
             console.log(
-              '  COMPREPLY=($(compgen -W "help completions validate info" -- "${COMP_WORDS[COMP_CWORD]}"))'
+              '  COMPREPLY=($(compgen -W "help completions info user-agents" -- "${COMP_WORDS[COMP_CWORD]}"))'
             );
             console.log('}');
             console.log('complete -F _defud_completions defud');
@@ -54,7 +54,7 @@ export function setupCompletionsCommand(program: Program): void {
             console.log('_defud() {');
             console.log('  local -a commands');
             console.log(
-              '  commands=("help:Show help" "completions:Generate shell completions" "validate:Validate HTML" "info:Display metadata")'
+              '  commands=("help:Show help" "completions:Generate shell completions" "info:Display metadata" "user-agents:List available user agent options")'
             );
             console.log('  _describe -t commands "defud commands" commands');
             console.log('}');
@@ -65,8 +65,8 @@ export function setupCompletionsCommand(program: Program): void {
             console.log('function __fish_defud_commands');
             console.log('  echo help\tShow help');
             console.log('  echo completions\tGenerate shell completions');
-            console.log('  echo validate\tValidate HTML');
             console.log('  echo info\tDisplay metadata');
+            console.log('  echo user-agents\tList available user agent options');
             console.log('end');
             console.log('complete -f -c defud -a "(__fish_defud_commands)"');
             break;

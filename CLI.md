@@ -27,26 +27,8 @@ defud [input] [options]
 *   `--extract-code`: Output only the content of code blocks.
 *   `--read-time`: Estimate reading time of the main content.
 *   `--timeout <ms>`: Maximum time to wait for URL fetching. Default: `10000`.
-*   `--user-agent <string>`: Custom user-agent string for URL fetching.
+*   `--user-agent <string>`: Custom user-agent string, browser-OS combination (e.g., `firefox-linux`), or crawler type (e.g., `crawler-googlebot`).
 
-## `validate` Command
-
-Validates HTML input without processing it.
-
-**Usage:**
-
-```bash
-defud validate <input> [options]
-```
-
-**Arguments:**
-
-*   `<input>`: URL, file path, or HTML content.
-
-**Options:**
-
-*   `--timeout <ms>`: Maximum time to wait for URL fetching. Default: `10000`.
-*   `--user-agent <string>`: Custom user-agent string for URL fetching.
 
 ## `info` Command
 
@@ -65,11 +47,23 @@ defud info <input> [options]
 **Options:**
 
 *   `--timeout <ms>`: Maximum time to wait for URL fetching. Default: `10000`.
-*   `--user-agent <string>`: Custom user-agent string for URL fetching.
+*   `--user-agent <string>`: Custom user-agent string, browser-OS combination (e.g., `firefox-linux`), or crawler type (e.g., `crawler-googlebot`).
 *   `-o, --output <path>`: Write output to a file instead of stdout.
 *   `-f, --format <format>`: Output format (`text`, `json`). Default: `text`.
 *   `--list-images`: List all image URLs found in the main content.
 *   `--read-time`: Estimate reading time of the main content.
+
+## `user-agents` Command
+
+Lists available browser-OS combinations and crawler types for the `--user-agent` option.
+
+**Usage:**
+
+```bash
+defud user-agents
+```
+
+This command displays all available browser-OS combinations (e.g., `firefox-linux`, `chrome-macos`) and crawler types (e.g., `crawler-googlebot`) that can be used with the `--user-agent` option in other commands.
 
 ## `completions` Command
 

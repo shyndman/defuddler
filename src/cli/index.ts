@@ -7,7 +7,6 @@ import logger, { setLogLevel } from '../io/logger.js';
 // Import commands
 import { setupMainCommand } from './commands/main.js';
 import { setupCompletionsCommand } from './commands/completions.js';
-import { setupValidateCommand } from './commands/validate.js';
 import { setupInfoCommand } from './commands/info.js';
 import { setupUserAgentsCommand } from './commands/user-agents.js';
 
@@ -35,7 +34,6 @@ if (process.argv.includes('-v') || process.argv.includes('--verbose')) {
 // Setup commands
 setupMainCommand(program);
 setupCompletionsCommand(program);
-setupValidateCommand(program);
 setupInfoCommand(program);
 setupUserAgentsCommand(program);
 
