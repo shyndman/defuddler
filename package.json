@@ -24,6 +24,9 @@
     "*.ts": [
       "eslint --config eslint.config.ts",
       "prettier --check"
+    ],
+    "*.{json,md}": [
+      "prettier --check"
     ]
   },
   "keywords": [
