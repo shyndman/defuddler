@@ -1,12 +1,24 @@
-# Defuddler
+# ✨ Defuddler ✨
 
 [![CI](https://github.com/shyndman/defuddler/actions/workflows/ci.yml/badge.svg)](https://github.com/shyndman/defuddler/actions/workflows/ci.yml)
 
-A command-line interface for extracting the main content from web pages and articles, powered by the [defuddle](https://github.com/kepano/defuddle) library.
+Defuddler cuts through the clutter of modern web pages to extract what matters most: **the content**. This CLI tool transforms noisy articles and web pages into clean, readable text in multiple formats.
 
-*"In the beginning, there was noise, and the Great Parser brought forth clarity."*
+## 🙏 Special Thanks
 
-## Installation
+This project wouldn't exist without [kepano/defuddle](https://github.com/kepano/defuddle), the incredible library that powers our content extraction. A huge thank you to [@kepano](https://github.com/kepano) for creating such an amazing tool!
+
+## ✨ Features
+
+- **Clean Content Extraction**: Strip away ads, navigation, footers, and other distractions
+- **Multiple Output Formats**: Convert to text, HTML, JSON, or Markdown
+- **Browser Preview**: Open results in your browser with stylish formatting
+- **Customizable User Agents**: Simulate different browsers and crawlers
+- **Image Handling**: Option to include or exclude images
+- **Code Block Extraction**: Pull out just the code samples
+- **Reading Time Estimation**: Know how long an article will take to read
+
+## 💾 Installation
 
 ```bash
 # Global installation
@@ -19,58 +31,64 @@ pnpm add -g @shyndman/defuddler
 npx @shyndman/defuddler
 ```
 
-## Usage
+## 💻 Usage
 
 ```bash
 defud [options] <input>
 ```
 
-### Input Methods
+### 📂 Input Methods
 
 - URL: `defud https://example.com/article`
 - File: `defud ./path/to/file.html`
 - Standard Input: `cat file.html | defud`
 
-### Examples
+### 💻 Examples
 
 ```bash
-# Process URL and output to terminal
+# 🌐 Extract content from a website
 defud https://example.com/article
 
-# Process URL with verbose logging
+# 📝 Save as markdown for your notes
+defud -f markdown -o notes.md https://example.com/article
+
+# 🔍 View in your browser with nice formatting
+defud -b https://example.com/article
+
+# 💾 Process a local HTML file
+defud -b ./saved-article.html
+
+# 📈 Get just the JSON data
+defud -f json https://example.com/article
+
+# 📢 Verbose mode for debugging
 defud -v https://example.com/article
 
-# Process local file and open in browser
-defud -b ./article.html
+# 🖼️ Strip out all images
+defud --no-images -f html -o clean.html https://example.com/article
 
-# Process URL and save as markdown
-defud -f markdown -o output.md https://example.com/article
-
-# Process stdin and output JSON
-cat article.html | defud -f json
-
-# Process URL, remove images, and save as HTML
-defud --no-images -f html -o no-images.html https://example.com/article
-
-# Get estimated read time and list images from a URL
+# ⏱ Get reading time and list of images
 defud info --read-time --list-images https://example.com/article
 
-# Generate zsh completions
+# 🐍 Use a specific browser user-agent
+defud --user-agent firefox-linux https://example.com/article
+
+# 🚀 Set up shell completions
 defud completions zsh > ~/.zsh/completions/_defud
 ```
 
-## Options
+## 🔧 Options
 
-### Global Options
+### 🌐 Global Options
 - `--verbose, -v`: Enable verbose logging
 - `--help, -h`: Display help information
 - `--version`: Display version information
 
-### Input Options
+### 📥 Input Options
 - `--timeout <ms>`: Maximum time to wait for URL fetching (default: 10000)
 - `--user-agent <string>`: Custom user-agent string, browser-OS combination (e.g., `firefox-linux`), or crawler type (e.g., `crawler-googlebot`)
 
-### Output Options
+### 📤 Output Options
 - `--output, -o <path>`: Write output to a file instead of stdout
 - `--format, -f <format>`: Output format (default: 'text')
   - `text`: Plain text output
@@ -84,15 +102,15 @@ defud completions zsh > ~/.zsh/completions/_defud
 - `--extract-code`: Output only the content of code blocks
 - `--read-time`: Estimate reading time of the main content
 
-## Subcommands
+## 💬 Subcommands
 
-### User Agents
+### 👤 User Agents
 ```bash
 defud user-agents
 ```
 List available browser-OS combinations and crawler types for the `--user-agent` option
 
-### Completions
+### 🔤 Completions
 ```bash
 defud completions <shell>
 ```
@@ -102,7 +120,7 @@ Generate shell completions for:
 - `fish`
 
 
-### Info
+### 📄 Info
 ```bash
 defud info <input> [options]
 ```
@@ -112,6 +130,6 @@ Display metadata about the content without full processing
 - `--list-images`: List all image URLs found in the main content.
 - `--read-time`: Estimate reading time of the main content.
 
-## License
+## 📜 License
 
 MIT
