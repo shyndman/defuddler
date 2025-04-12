@@ -127,12 +127,13 @@ The CLI will provide clear error messages for:
 
 Core dependencies:
 - defuddle
-- commander (CLI framework)
+- @caporal/core (CLI framework)
 - chalk (terminal colors)
 - ora (spinners)
 - open (browser opening)
 - got (HTTP client)
 - debug (logging)
+- winston (logging)
 
 Dev dependencies:
 - TypeScript

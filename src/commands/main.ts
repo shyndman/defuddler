@@ -1,29 +1,44 @@
-import { Command } from 'commander';
-import debug from 'debug';
+import { Program } from '@caporal/core';
 import chalk from 'chalk';
 import ora from 'ora';
+// We'll use OutputFormat later when implementing the actual functionality
 
-const logger = debug('defuddle:commands:main');
-
-export function setupMainCommand(program: Command): void {
+export function setupMainCommand(program: Program): void {
   program
     .argument('[input]', 'URL, file path, or HTML content (if omitted, reads from stdin)')
     .option('-o, --output <path>', 'Write output to a file instead of stdout')
     .option(
       '-f, --format <format>',
       'Output format (text, html, json, markdown)',
-      'text'
+      {
+        validator: program.STRING,
+        default: 'text'
+      }
     )
-    .option('-b, --browser', 'Open result in default browser with styled view')
+    .option('-b, --browser', 'Open result in default browser with styled view', {
+      validator: program.BOOLEAN
+    })
     .option('-s, --style <path>', 'Custom CSS file for browser view')
-    .option('--no-style', 'Disable default styling in browser view')
-    .option('--no-images', 'Remove all images from the output')
-    .option('--extract-code', 'Output only the content of code blocks')
-    .option('--read-time', 'Estimate reading time of the main content')
-    .option('--timeout <ms>', 'Maximum time to wait for URL fetching', '10000')
+    .option('--no-style', 'Disable default styling in browser view', {
+      validator: program.BOOLEAN
+    })
+    .option('--no-images', 'Remove all images from the output', {
+      validator: program.BOOLEAN
+    })
+    .option('--extract-code', 'Output only the content of code blocks', {
+      validator: program.BOOLEAN
+    })
+    .option('--read-time', 'Estimate reading time of the main content', {
+      validator: program.BOOLEAN
+    })
+    .option('--timeout <ms>', 'Maximum time to wait for URL fetching', {
+      validator: program.NUMBER,
+      default: 10000
+    })
     .option('--user-agent <string>', 'Custom user-agent string for URL fetching')
-    .action(async (input, options) => {
-      logger('Running main command with input: %s and options: %O', input, options);
+    .action(async ({ args, options, logger }) => {
+      const { input } = args;
+      logger.debug('Running main command with input: %s and options: %O', input, options);
 
       const spinner = ora('Processing content...').start();
 
@@ -41,9 +56,9 @@ export function setupMainCommand(program: Command): void {
       } catch (error: unknown) {
         spinner.fail('Failed to process content');
         const errorMessage = error && typeof error === 'object' && 'message' in error
-          ? (error as { message?: string }).message
+          ? (error as { message?: string; }).message
           : 'An unknown error occurred';
-        console.error(chalk.red(`Error: ${errorMessage || 'An unknown error occurred'}`));
+        logger.error(chalk.red(`Error: ${errorMessage || 'An unknown error occurred'}`));
         process.exit(1);
       }
     });
