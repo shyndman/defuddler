@@ -17,17 +17,13 @@ const packageJson = {
 };
 
 // Setup program metadata
-program
-  .name('defuddle')
-  .description(packageJson.description)
-  .version(packageJson.version);
+program.name('defuddle').description(packageJson.description).version(packageJson.version);
 
 // Setup global options
-program
-  .option('-v, --verbose', 'Enable verbose logging', {
-    global: true,
-    validator: program.BOOLEAN
-  });
+program.option('-v, --verbose', 'Enable verbose logging', {
+  global: true,
+  validator: program.BOOLEAN,
+});
 
 // Process verbose flag before command execution
 if (process.argv.includes('-v') || process.argv.includes('--verbose')) {
@@ -46,9 +42,10 @@ try {
   await program.run();
 } catch (err: unknown) {
   // Handle errors
-  const errorMessage = err && typeof err === 'object' && 'message' in err
-    ? (err as { message?: string; }).message
-    : 'An unknown error occurred';
+  const errorMessage =
+    err && typeof err === 'object' && 'message' in err
+      ? (err as { message?: string }).message
+      : 'An unknown error occurred';
 
   console.error(chalk.red(`Error: ${errorMessage || 'An unknown error occurred'}`));
   if (process.argv.includes('-v') || process.argv.includes('--verbose')) {

@@ -8,7 +8,7 @@ export function setupValidateCommand(program: Program): void {
     .argument('<input>', 'URL, file path, or HTML content')
     .option('--timeout <ms>', 'Maximum time to wait for URL fetching', {
       default: 10000,
-      validator: program.NUMBER
+      validator: program.NUMBER,
     })
     .option('--user-agent <string>', 'Custom user-agent string for URL fetching')
     .action(async ({ args, options, logger }) => {
@@ -25,13 +25,15 @@ export function setupValidateCommand(program: Program): void {
         // 3. Validate the HTML structure
 
         spinner.succeed('HTML is valid');
-        logger.info(chalk.yellow('This is a placeholder. The actual implementation will validate the HTML.'));
-
+        logger.info(
+          chalk.yellow('This is a placeholder. The actual implementation will validate the HTML.')
+        );
       } catch (error: unknown) {
         spinner.fail('HTML validation failed');
-        const errorMessage = error && typeof error === 'object' && 'message' in error
-          ? (error as { message?: string; }).message
-          : 'An unknown error occurred';
+        const errorMessage =
+          error && typeof error === 'object' && 'message' in error
+            ? (error as { message?: string }).message
+            : 'An unknown error occurred';
         logger.error(chalk.red(`Error: ${errorMessage || 'An unknown error occurred'}`));
         process.exit(1);
       }

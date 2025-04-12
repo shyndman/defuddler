@@ -17,59 +17,77 @@ export function setupInfoCommand(program: Program): void {
     .argument('<input>', 'URL, file path, or HTML content')
     .option('--timeout <ms>', 'Maximum time to wait for URL fetching', {
       default: 10000,
-      validator: program.NUMBER
+      validator: program.NUMBER,
     })
     .option('--user-agent <string>', 'Custom user-agent string for URL fetching')
     .option('-o, --output <path>', 'Write output to a file instead of stdout')
     .option('-f, --format <format>', 'Output format (text, json)', {
       default: 'text',
-      validator: program.STRING
+      validator: program.STRING,
     })
     .option('--list-images', 'List all image URLs found in the main content', {
-      validator: program.BOOLEAN
+      validator: program.BOOLEAN,
     })
     .option('--read-time', 'Estimate reading time of the main content', {
-      validator: program.BOOLEAN
+      validator: program.BOOLEAN,
     })
-    .action(async ({ args, options, logger }:
-      { args: ParsedArgumentsObject, options: ParsedOptions, logger: Logger; }) => {
-      const { input } = args;
-      logger.debug('Getting info for input: %s with options: %O', input, options);
+    .action(
+      async ({
+        args,
+        options,
+        logger,
+      }: {
+        args: ParsedArgumentsObject;
+        options: ParsedOptions;
+        logger: Logger;
+      }) => {
+        const { input } = args;
+        logger.debug('Getting info for input: %s with options: %O', input, options);
 
-      const spinner = ora('Extracting metadata...').start();
+        const spinner = ora('Extracting metadata...').start();
 
-      try {
-        // Determine the input type
-        const inputType = determineInputType(String(input));
-        logger.debug(`Determined input type: ${inputType}`);
+        try {
+          // Determine the input type
+          const inputType = determineInputType(String(input));
+          logger.debug(`Determined input type: ${inputType}`);
 
+          // Get HTML content based on input type
+          const html = await getHtmlContent(
+            String(input),
+            inputType,
+            Number(options.timeout),
+            String(options['userAgent']),
+            logger
+          );
+          logger.debug('HTML content retrieved successfully');
 
-        // Get HTML content based on input type
-        const html = await getHtmlContent(
-          String(input), inputType, Number(options.timeout), String(options['userAgent']), logger);
-        logger.debug('HTML content retrieved successfully');
+          // Extract metadata using defuddle
+          const metadata = await extractMetadata(html, logger);
+          logger.debug('Metadata extracted successfully');
 
-        // Extract metadata using defuddle
-        const metadata = await extractMetadata(html, logger);
-        logger.debug('Metadata extracted successfully');
+          // Format the output
+          const formattedOutput = formatOutput(metadata, options, logger);
+          logger.debug('Output formatted successfully');
 
-        // Format the output
-        const formattedOutput = formatOutput(metadata, options, logger);
-        logger.debug('Output formatted successfully');
+          // Output the result
+          await outputResult(
+            formattedOutput,
+            options.output ? String(options.output) : undefined,
+            logger
+          );
 
-        // Output the result
-        await outputResult(formattedOutput, options.output ? String(options.output) : undefined, logger);
-
-        spinner.succeed('Metadata extracted successfully');
-      } catch (error: unknown) {
-        spinner.fail('Failed to extract metadata');
-        const errorMessage = error && typeof error === 'object' && 'message' in error
-          ? (error as { message?: string; }).message
-          : 'An unknown error occurred';
-        logger.error(chalk.red(`Error: ${errorMessage || 'An unknown error occurred'}`));
-        process.exit(1);
+          spinner.succeed('Metadata extracted successfully');
+        } catch (error: unknown) {
+          spinner.fail('Failed to extract metadata');
+          const errorMessage =
+            error && typeof error === 'object' && 'message' in error
+              ? (error as { message?: string }).message
+              : 'An unknown error occurred';
+          logger.error(chalk.red(`Error: ${errorMessage || 'An unknown error occurred'}`));
+          process.exit(1);
+        }
       }
-    });
+    );
 
   /**
    * Determines the type of input (URL, file, or string)
@@ -145,8 +163,94 @@ export function setupInfoCommand(program: Program): void {
       readingTime: result.content ? calculateReadingTime(result.content) : undefined,
     };
 
+    // Extract image URLs from the content if available
+    if (result.content) {
+      logger?.debug('Extracting image URLs from content');
+      metadata.contentImages = extractImageUrls(result.content, dom.window.document.baseURI);
+      logger?.debug(`Found ${metadata.contentImages.length} images in content`);
+    }
+
     logger?.debug('Metadata extracted', metadata);
     return metadata;
+  }
+
+  /**
+   * Extracts image URLs from HTML content
+   */
+  function extractImageUrls(html: string, baseUrl: string): string[] {
+    // Create a temporary DOM to parse the HTML content
+    const tempDom = new JSDOM(html, { url: baseUrl });
+    const document = tempDom.window.document;
+
+    const imageUrls = new Set<string>();
+
+    // Extract URLs from img elements
+    const imgElements = document.querySelectorAll('img');
+    imgElements.forEach((img) => {
+      const src = img.getAttribute('src');
+      if (src) {
+        try {
+          // Resolve relative URLs to absolute URLs
+          const absoluteUrl = new URL(src, baseUrl).href;
+          imageUrls.add(absoluteUrl);
+        } catch (e) {
+          // Skip invalid URLs
+        }
+      }
+
+      // Also check srcset attribute
+      const srcset = img.getAttribute('srcset');
+      if (srcset) {
+        // Parse srcset format: "url1 1x, url2 2x" or "url1 100w, url2 200w"
+        const srcsetUrls = srcset.split(',').map((part) => part.trim().split(/\s+/)[0]);
+        srcsetUrls.forEach((url) => {
+          if (url) {
+            try {
+              const absoluteUrl = new URL(url, baseUrl).href;
+              imageUrls.add(absoluteUrl);
+            } catch (e) {
+              // Skip invalid URLs
+            }
+          }
+        });
+      }
+    });
+
+    // Extract URLs from picture elements and their source elements
+    const sourceElements = document.querySelectorAll('source');
+    sourceElements.forEach((source) => {
+      const srcset = source.getAttribute('srcset');
+      if (srcset) {
+        const srcsetUrls = srcset.split(',').map((part) => part.trim().split(/\s+/)[0]);
+        srcsetUrls.forEach((url) => {
+          if (url) {
+            try {
+              const absoluteUrl = new URL(url, baseUrl).href;
+              imageUrls.add(absoluteUrl);
+            } catch (e) {
+              // Skip invalid URLs
+            }
+          }
+        });
+      }
+    });
+
+    // Extract SVG elements with external references
+    const svgElements = document.querySelectorAll('svg image');
+    svgElements.forEach((svgImage) => {
+      const href = svgImage.getAttribute('href') || svgImage.getAttribute('xlink:href');
+      if (href && !href.startsWith('data:')) {
+        try {
+          const absoluteUrl = new URL(href, baseUrl).href;
+          imageUrls.add(absoluteUrl);
+        } catch (e) {
+          // Skip invalid URLs
+        }
+      }
+    });
+
+    // Return unique image URLs as an array
+    return Array.from(imageUrls);
   }
 
   /**
@@ -167,7 +271,11 @@ export function setupInfoCommand(program: Program): void {
   /**
    * Formats the output based on options
    */
-  function formatOutput(metadata: ContentMetadata, options: ParsedOptions, logger?: Logger): string {
+  function formatOutput(
+    metadata: ContentMetadata,
+    options: ParsedOptions,
+    logger?: Logger
+  ): string {
     logger?.debug('Formatting output', { format: options.format });
 
     // Filter metadata based on options
@@ -176,6 +284,11 @@ export function setupInfoCommand(program: Program): void {
     // Only include reading time if requested
     if (!options.readTime) {
       delete filteredMetadata.readingTime;
+    }
+
+    // Only include content images if requested
+    if (!options.listImages) {
+      delete filteredMetadata.contentImages;
     }
 
     // Format based on requested format
@@ -193,12 +306,47 @@ export function setupInfoCommand(program: Program): void {
         lines.push(`Site: ${filteredMetadata.site}`);
       }
 
+      if (filteredMetadata.domain) {
+        lines.push(`Domain: ${filteredMetadata.domain}`);
+      }
+
+      if (filteredMetadata.author) {
+        lines.push(`Author: ${filteredMetadata.author}`);
+      }
+
+      if (filteredMetadata.published) {
+        lines.push(`Published: ${filteredMetadata.published}`);
+      }
+
+      if (filteredMetadata.description) {
+        lines.push(`Description: ${filteredMetadata.description}`);
+      }
+
       if (filteredMetadata.wordCount) {
         lines.push(`Word count: ${filteredMetadata.wordCount}`);
       }
 
       if (filteredMetadata.readingTime) {
-        lines.push(`Reading time: ${filteredMetadata.readingTime} minute${filteredMetadata.readingTime !== 1 ? 's' : ''}`);
+        lines.push(
+          `Reading time: ${filteredMetadata.readingTime} minute${filteredMetadata.readingTime !== 1 ? 's' : ''}`
+        );
+      }
+
+      // Include favicon and main image
+      if (filteredMetadata.favicon) {
+        lines.push(`Favicon: ${filteredMetadata.favicon}`);
+      }
+
+      if (filteredMetadata.image) {
+        lines.push(`Main image: ${filteredMetadata.image}`);
+      }
+
+      // Include content images if requested
+      if (filteredMetadata.contentImages && filteredMetadata.contentImages.length > 0) {
+        lines.push('\nContent images:');
+        filteredMetadata.contentImages.forEach((url, index) => {
+          lines.push(`  ${index + 1}. ${url}`);
+        });
       }
 
       return lines.join('\n');

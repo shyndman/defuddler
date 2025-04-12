@@ -16,7 +16,7 @@ export function setupCompletionsCommand(program: Program): void {
   program
     .command('completions', 'Generate shell completions')
     .argument('<shell>', 'Shell type (zsh, bash, fish)', {
-      validator: program.STRING
+      validator: program.STRING,
     })
     .action(async ({ args, logger }) => {
       const shell = args.shell as ShellType;
@@ -42,7 +42,9 @@ export function setupCompletionsCommand(program: Program): void {
           case 'bash':
             console.log('# Bash completion script');
             console.log('_defuddle_completions() {');
-            console.log('  COMPREPLY=($(compgen -W "help completions validate info" -- "${COMP_WORDS[COMP_CWORD]}"))');
+            console.log(
+              '  COMPREPLY=($(compgen -W "help completions validate info" -- "${COMP_WORDS[COMP_CWORD]}"))'
+            );
             console.log('}');
             console.log('complete -F _defuddle_completions defuddle');
             break;
@@ -51,7 +53,9 @@ export function setupCompletionsCommand(program: Program): void {
             console.log('#compdef defuddle');
             console.log('_defuddle() {');
             console.log('  local -a commands');
-            console.log('  commands=("help:Show help" "completions:Generate shell completions" "validate:Validate HTML" "info:Display metadata")');
+            console.log(
+              '  commands=("help:Show help" "completions:Generate shell completions" "validate:Validate HTML" "info:Display metadata")'
+            );
             console.log('  _describe -t commands "defuddle commands" commands');
             console.log('}');
             console.log('_defuddle "$@"');
@@ -75,26 +79,40 @@ export function setupCompletionsCommand(program: Program): void {
         const programName = 'defuddle';
         switch (shell) {
           case 'bash':
-            console.error(chalk.yellow(`  ${programName} completions bash > ~/.bash_completion.d/${programName}`));
-            console.error(chalk.yellow(`  echo 'source ~/.bash_completion.d/${programName}' >> ~/.bashrc`));
+            console.error(
+              chalk.yellow(
+                `  ${programName} completions bash > ~/.bash_completion.d/${programName}`
+              )
+            );
+            console.error(
+              chalk.yellow(`  echo 'source ~/.bash_completion.d/${programName}' >> ~/.bashrc`)
+            );
             break;
           case 'zsh':
-            console.error(chalk.yellow(`  ${programName} completions zsh > ~/.zsh/completions/_${programName}`));
-            console.error(chalk.yellow('  # Make sure ~/.zsh/completions is in your fpath before compinit'));
+            console.error(
+              chalk.yellow(`  ${programName} completions zsh > ~/.zsh/completions/_${programName}`)
+            );
+            console.error(
+              chalk.yellow('  # Make sure ~/.zsh/completions is in your fpath before compinit')
+            );
             break;
           case 'fish':
-            console.error(chalk.yellow(`  ${programName} completions fish > ~/.config/fish/completions/${programName}.fish`));
+            console.error(
+              chalk.yellow(
+                `  ${programName} completions fish > ~/.config/fish/completions/${programName}.fish`
+              )
+            );
             break;
         }
 
         // Suggest using the built-in installation command
         console.error(chalk.blue('\nAlternatively, you can use the automatic installation:'));
         console.error(chalk.blue(`  ${programName} --install-completion`));
-
       } catch (error: unknown) {
-        const errorMessage = error && typeof error === 'object' && 'message' in error
-          ? (error as { message?: string; }).message
-          : 'An unknown error occurred';
+        const errorMessage =
+          error && typeof error === 'object' && 'message' in error
+            ? (error as { message?: string }).message
+            : 'An unknown error occurred';
         logger.error(chalk.red(`Error: ${errorMessage || 'An unknown error occurred'}`));
         process.exit(1);
       }

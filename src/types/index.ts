@@ -1,4 +1,4 @@
-import { DefuddleResponse } from "defuddle";
+import { DefuddleResponse } from 'defuddle';
 
 /**
  * Supported output formats
@@ -17,7 +17,7 @@ export enum InputSourceType {
   URL = 'url',
   FILE = 'file',
   STDIN = 'stdin',
-  STRING = 'string'
+  STRING = 'string',
 }
 
 /**
@@ -39,6 +39,7 @@ export interface MainCommandOptions {
  */
 export interface ContentMetadata extends Partial<DefuddleResponse> {
   readingTime?: number;
+  contentImages?: string[];
 }
 
 /**
