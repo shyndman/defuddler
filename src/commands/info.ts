@@ -109,7 +109,7 @@ export function setupInfoCommand(program: Program): void {
         logger?.debug(`Fetching URL: ${input} with timeout: ${timeout}ms`);
         const response = await got(input, {
           timeout: { request: timeout },
-          headers: userAgent ? { 'user-agent': userAgent } : {}
+          headers: userAgent ? { 'user-agent': userAgent } : {},
         });
         return response.body;
       }
