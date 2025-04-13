@@ -4,10 +4,12 @@
 
 Defuddler cuts through the clutter of modern web pages to extract what matters most: **the content**. This CLI tool transforms noisy articles and web pages into clean, readable text in multiple formats.
 
+<br>
 <div align="center">
-  <img src="assets/images/transformation_optimized.png" alt="Defuddler transformation example" width="500">
+  <img src="assets/images/transformation_optimized.png" alt="Defuddler transformation example" width="600">
   <p><em>From cluttered web page to clean, readable content in seconds</em></p>
 </div>
+<br>
 
 ## 🙏 Special Thanks
 
